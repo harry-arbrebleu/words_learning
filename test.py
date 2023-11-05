@@ -90,7 +90,7 @@ with open(path, mode = 'w', encoding = "utf-16") as f:
             ich += 1
         wr += str(l[i][0]) + "\t" + l[i][1] + "\t" + l[i][2] + "\n"
     f.write(wr)
-print(f"全てで{len(l)}単語のうち，習得: {shu}単語, 点検中: {ich}単語です．")
-print(f"新たに{shu - alr}単語習得しました．")
+print(f"全てで{len(l)}単語のうち，修得: {shu}単語, 点検中: {ich}単語です．")
+print(f"新たに{shu - alr}単語修得しました．")
 print(f"習得率は{(shu * 100) / len(l)}%です．")
 f.close()
