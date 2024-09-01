@@ -185,4 +185,10 @@ async def register(inter: discord.Interaction):
     else:
         await inter.response.send_message("登録済み")
 
+@tree.command(name="test",description="テストコマンドです")
+@app_commands.describe(picture="ここに画像をアップロード")#使われている引数の名前="詳細"
+async def test_command(interaction: discord.Interaction,picture:discord.Attachment):
+    embed=discord.Embed(title="画像",color=0xff0000)
+    embed.set_image(url=picture.url)
+    await interaction.response.send_message(embed=embed)
 bot.run(TOKEN)
