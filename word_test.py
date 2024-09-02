@@ -2,8 +2,17 @@ import numpy as np
 import time
 import os
 import random
-from bidi.algorithm import get_display
-import arabic_reshaper
+from gtts import gTTS
+
+def make_audio(path, data, user_name):
+    path = path[: len(path) - 4]
+    if not os.path.isdir(path):
+        os.mkdir(path)
+    for x in data:
+        language = "en"
+        text = x[1]
+        tts = gTTS(text=text, lang=language, slow=False)
+        tts.save("data/" + user_name + "/" + text + ".mp3")
 def select_problem(path: str) -> list:
     data = np.loadtxt(path, dtype="str", delimiter="\t", encoding="utf-8")
     data = data.tolist()
@@ -12,6 +21,7 @@ def select_problem(path: str) -> list:
     return data
 def generate_problems(data: list, number_of_problems: int) -> list:
     l = list()
+    print(data)
     already_learnt = 0
     for i in range(len(data)):
         l.append([int(data[i][0]), str(data[i][1]), str(data[i][2]), i])
@@ -24,7 +34,9 @@ def generate_problems(data: list, number_of_problems: int) -> list:
     l.sort()
     use = []
     i = 0
-    while len(use) < number_of_problems:
+    print(l)
+    while len(use) <= number_of_problems:
+        print(i)
         if l[i][0] <= 1:
             use.append(l[i])
             i += 1
@@ -104,6 +116,15 @@ def ending_test(path: str, data: list, already_learnt: int) -> bool:
     f.close()
     ret = f"全てで{len(data)}単語のうち，習得: {shu}単語, 点検中: {ich}単語です．\n新たに{shu - already_learnt}単語習得しました．\n習得率は{(shu * 100) / len(data)}%です．"
     return ret
+# def make_audio(path, data):
+#     path = path[: len(path) - 4]
+#     if not os.path.isdir(path):
+#         os.mkdir(path)
+#     for x in data:
+#         language = "en"
+#         text = x[1]
+#         tts = gTTS(text=text, lang=language, slow=False)
+#         tts.save("data/" + user_name + "/" + text + ".mp3")
 def main():
     # name_of_test = input("1-7の中でどれをやりたいですか？\n")
     name_of_test = "1"

@@ -11,9 +11,11 @@ from dotenv import load_dotenv
 import numpy as np
 import time
 import os
+import io
 import random
-from bidi.algorithm import get_display
-import arabic_reshaper
+import csv
+import shutil
+from gtts import gTTS
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
@@ -32,6 +34,7 @@ class UserData:
         self.correct_ans = 0
         self.path = ""
         self.already_learnt = []
+        self.used_buttons = set()
     def reset(self):
         self.data = []
         self.number_of_problems = 0
@@ -42,6 +45,7 @@ class UserData:
         self.correct_ans = 0
         self.path = ""
         self.already_learnt = []
+        self.used_buttons = set()
     def select_problem(self, problem_type):
         self.data = list()
         self.asked = self.correct = 0
@@ -53,6 +57,8 @@ class UserData:
         self.number_of_problems = number_of_problems
         use_and_already_learnt = word_test.generate_problems(self.data, self.number_of_problems)
         self.use = use_and_already_learnt[0]
+        print(self.path, self.data)
+        word_test.make_audio(self.path, self.data, self.user_id)
         self.already_learnt = use_and_already_learnt[1]
     def update_correct_answer(self):
         self.correct += 1
@@ -73,6 +79,7 @@ class UserData:
     def end_test(self):
         statement = word_test.ending_test(self.path, self.data, self.already_learnt)
         return statement
+
 user_data_dict = {}
 @bot.event
 async def on_ready():
@@ -110,7 +117,7 @@ async def on_button_click(inter: discord.Interaction):
                 color = discord.Colour.blue(),
                 description = user_info.get_score()
             )
-            await inter.response.send_message(embed=embed)
+            await inter.response.send_message(embed=embed, ephemeral=True)
         elif returned_ans.startswith("answng"):
             user_info.update_wrong_answer()
             embed = discord.Embed(
@@ -118,21 +125,26 @@ async def on_button_click(inter: discord.Interaction):
                 color = discord.Colour.red(),
                 description = f"{user_info.get_score()}\n {user_info.use[user_info.asked - 1][1]}: {user_info.ask[user_info.correct_ans]}"
             )
-            await inter.response.send_message(embed=embed)
+            await inter.response.send_message(embed=embed, ephemeral=True)
         await manage_flow(inter, user_info)
 async def manage_flow(inter: discord.Interaction, user_info: UserData):
+    print(user_info.path)
     if user_info.asked < user_info.number_of_problems:
+        print(user_info.asked)
         question_title, ask = user_info.prepare_question()
+        print(question_title, ask, user_info.asked)
         embed = discord.Embed(
-            title=question_title,
+            title="\n" + question_title,
             color=discord.Colour.green(),
         )
         for j in range(1, 10):
             embed.add_field(name=str(j), value=ask[j])
         if not inter.response.is_done():
-            await inter.response.send_message(embed=embed)
+            await inter.response.send_message(embed=embed, ephemeral=True)
         else:
-            await inter.followup.send(embed=embed)
+            await inter.followup.send(embed=embed, ephemeral=True)
+        # audio_source = ここから
+        inter.guild.voice_client.play(audio_source, after=lambda e: print(f'エラー: {e}'))
         await make_options(inter, ask, user_info.correct_ans)
     else:
         await terminate_test(inter, user_info)
@@ -140,12 +152,13 @@ async def make_options(inter: discord.Interaction, ask, correct_ans):
     view = discord.ui.View()
     for i in range(1, 10):
         button = discord.ui.Button(
-            label=str(i), 
+            label=str(i),
             style=discord.ButtonStyle.green, 
-            custom_id="anscrr" + str(i) if i == correct_ans else "answng" + str(i)
+            custom_id="anscrr" + str(i) if i == correct_ans else "answng" + str(i),
+            disabled=False
         )
         view.add_item(button)
-    await inter.followup.send("答えを1つ選びなさい", view=view)
+    await inter.followup.send("答えを1つ選んでください．", view=view, ephemeral=True)
 async def select_number(inter: discord.Interaction):
     view = discord.ui.View()
     number_candicates = [10, 30, 50, 100]
@@ -153,42 +166,108 @@ async def select_number(inter: discord.Interaction):
         button = discord.ui.Button(
             label=str(number_candicates[i]), 
             style=discord.ButtonStyle.green, 
-            custom_id="number" + str(number_candicates[i])
+            custom_id="number" + str(number_candicates[i]),
+            disabled=False
         )
         view.add_item(button)
-    await inter.response.send_message("問題数を選びなさい", view=view)
+    await inter.response.send_message("問題数を選んでください．", view=view, ephemeral=True)
+
 async def terminate_test(inter: discord.Interaction, user_info: UserData):
     statement = user_info.end_test()
     embed = discord.Embed(
         title="テスト終了",
         color=discord.Colour.green(),
-        description=statement
+        description=statement,
     )
     await inter.followup.send(embed=embed)
+
 @tree.command(name="test", description="単語テストを作成")
 async def select_problem(inter: discord.Interaction):
     view = discord.ui.View()
-    file_candidates = os.listdir("data/" + str(inter.user.name))
+    dir_path = "data/" + str(inter.user.name)
+    file_candidates = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
+    print(file_candidates)
     for x in file_candidates:
-        x_non_ext = str()
-        for i in range(len(x)):
-            if x[i] == ".":
-                x_non_ext = x[: i]
+        print(x)
+        x_non_ext = os.path.splitext(x)[0]
         button = discord.ui.Button(label=x_non_ext, style=discord.ButtonStyle.green, custom_id="problm" + str(x))
         view.add_item(button)
     await inter.response.send_message("テストの種類を選びなさい", view=view)
-@tree.command(name="register", description="利用開始")
+
+@tree.command(name="register", description="利用を開始します．")
 async def register(inter: discord.Interaction):
     if not os.path.isdir("data/" + str(inter.user.name)):
         os.mkdir("data/" + str(inter.user.name))
-        await inter.response.send_message("登録完了")
+        shutil.copy("data/harry_arbrebleu/アラビア語1.csv", "data/" + str(inter.user.name))
+        shutil.copy("data/harry_arbrebleu/フランス語1.csv", "data/" + str(inter.user.name))
+        await inter.response.send_message("登録完了しました．", ephemeral=True)
     else:
-        await inter.response.send_message("登録済み")
+        await inter.response.send_message("既に登録されています．", ephemeral=True)
 
-@tree.command(name="test",description="テストコマンドです")
-@app_commands.describe(picture="ここに画像をアップロード")#使われている引数の名前="詳細"
-async def test_command(interaction: discord.Interaction,picture:discord.Attachment):
-    embed=discord.Embed(title="画像",color=0xff0000)
-    embed.set_image(url=picture.url)
-    await interaction.response.send_message(embed=embed)
+@tree.command(name="new_file", description="新しい単語リストを追加します．")
+@app_commands.describe(new_file="ここにファイルをアップロード．")
+async def add_via_file(inter: discord.Interaction, new_file: discord.Attachment, name: str):
+    csv_data = await new_file.read()
+    csv_text = csv_data.decode()
+    new_words = list(csv.reader(io.StringIO(csv_text), delimiter='\t'))
+    if not os.path.isdir("data/" + str(inter.user.name)):
+        os.mkdir("data/" + str(inter.user.name))
+    with open("data/" + str(inter.user.name) + "/" + name + ".csv", mode="a+", encoding="utf-8") as f:
+        wrt = str()
+        for i in range(len(new_words)):
+            print(new_words[i])
+            wrt += "0\t" + new_words[i][0] + "\t" + new_words[i][1] + "\n"
+        f.write(wrt)
+        f.close()
+    await inter.response.send_message("新規単語の登録が完了しました．", ephemeral=True)
+
+@tree.command(name="new_word",description="新しい単語1つずつを追加します．")
+async def add_via_text(inter: discord.Interaction, foreign_lang: str, japanese: str, destination: str):
+    if not os.path.isdir("data/" + str(inter.user.name)):
+        os.mkdir("data/" + str(inter.user.name))
+    with open("data/" + str(inter.user.name) + "/" + destination + ".csv", mode="a+", encoding="utf-8") as f:
+        print(foreign_lang, japanese)
+        wrt = str()
+        wrt += "0\t" + foreign_lang + "\t" + japanese + "\n"
+        f.write(wrt)
+        f.close()
+    await inter.response.send_message("新規単語の登録が完了しました．", ephemeral=True)
+
+@tree.command(name="help", description="このbotの使い方を説明します．")
+async def help(inter: discord.Interaction):
+    embed=discord.Embed(title="使いかた", description="このbotの使い方を説明します．このbotは単語テストを実施するものです．間違えた単語が優先して出題されます．単語の追加もできます．デフォルトでフランス語とアラビア語の単語が入っています．", color=0xffff00)
+    embed.set_author(name="Words_master", url="https://github.com/harry-arbrebleu/words_learning")
+    embed.add_field(name="/register", value="botの利用を開始します．", inline= False)
+    embed.add_field(name="/test", value="単語テストを実施します．問題種別，問題数を選択できます．", inline= False)
+    embed.add_field(name="/new_file", value="[ファイル][ファイルの保存名]\n新たに単語をまとめて追加できます．追加できるファイルはtab区切りのcsvファイルのみです．1列目には学習している外国語，2列目にはその訳を付けてください．\n(例)\n aller\t 行く\n venir\t行く\n", inline= False)
+    embed.add_field(name="/new_word", value="[外国語][訳][ファイルの保存名]\n1単語ずつ追加します．", inline= False)
+    embed.add_field(name="/help", value="このメッセージを表示します．", inline= False)
+    embed.set_footer(text="タイトルのリンクからこのbotのGitHubページに飛べます．興味があれば覗いてみてください．")
+    await inter.response.send_message(embed=embed, ephemeral=True)
+
+@tree.command(name='join', description='ボイスチャンネルに接続します．')
+async def join(inter: discord.Interaction):
+    if inter.user.voice:
+        channel = inter.user.voice.channel
+        await channel.connect()
+        await inter.response.send_message("ボイスチャンネルに接続しました．")
+    else:
+        await inter.response.send_message("ボイスチャンネルに接続していません．")
+
+@tree.command(name='leave', description='ボイスチャンネルから切断します．')
+async def leave(inter: discord.Interaction):
+    if inter.guild.voice_client is not None:
+        await inter.guild.voice_client.disconnect()
+        await inter.response.send_message("ボイスチャンネルから切断しました．")
+    else:
+        await inter.response.send_message("ボイスチャンネルに接続していません．")
+
+# async def play(inter: discord.Interaction, word: str): # 音声再生
+#     if inter.guild.voice_client is None:
+#         await inter.response.send_message("ボイスチャンネルに接続してください．")
+#         return
+#     audio_source = discord.FFmpegPCMAudio("output.mp3")
+#     interaction.guild.voice_client.play(audio_source, after=lambda e: print(f'エラー: {e}') if e else None)
+#     await inter.response.send_message(f"{url}を再生しています。")
+
 bot.run(TOKEN)
