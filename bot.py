@@ -58,7 +58,6 @@ class UserData:
         use_and_already_learnt = word_test.generate_problems(self.data, self.number_of_problems)
         self.use = use_and_already_learnt[0]
         print(self.path, self.data)
-        word_test.make_audio(self.path, self.data, self.user_id)
         self.already_learnt = use_and_already_learnt[1]
     def update_correct_answer(self):
         self.correct += 1
@@ -198,11 +197,18 @@ async def select_problem(inter: discord.Interaction):
 async def register(inter: discord.Interaction):
     if not os.path.isdir("data/" + str(inter.user.name)):
         os.mkdir("data/" + str(inter.user.name))
+    await inter.response.send_message("登録中です．", ephemeral=True)
+    if not str(inter.user.name) == "harry_arbrebleu":
         shutil.copy("data/harry_arbrebleu/アラビア語1.csv", "data/" + str(inter.user.name))
         shutil.copy("data/harry_arbrebleu/フランス語1.csv", "data/" + str(inter.user.name))
-        await inter.response.send_message("登録完了しました．", ephemeral=True)
-    else:
-        await inter.response.send_message("既に登録されています．", ephemeral=True)
+        shutil.copy("data/harry_arbrebleu/英語1.csv", "data/" + str(inter.user.name))
+    path1 = "data/" + str(inter.user.name) + "/アラビア語1.csv"
+    path2 = "data/" + str(inter.user.name) + "/フランス語1.csv"
+    path3 = "data/" + str(inter.user.name) + "/英語1.csv"
+    word_test.make_audio(path1, str(inter.user.name), "ar")
+    word_test.make_audio(path2, str(inter.user.name), "fr")
+    word_test.make_audio(path3, str(inter.user.name), "en-uk")
+    await interaction.followup.send("登録完了しました。")
 
 @tree.command(name="new_file", description="新しい単語リストを追加します．")
 @app_commands.describe(new_file="ここにファイルをアップロード．")

@@ -4,15 +4,18 @@ import os
 import random
 from gtts import gTTS
 
-def make_audio(path, data, user_name):
-    path = path[: len(path) - 4]
-    if not os.path.isdir(path):
-        os.mkdir(path)
+def make_audio(path, user_name, language):
+    data = select_problem(path)
+    dirname, basename = os.path.split(path)
+    path_ext = os.path.splitext(basename)[0]
+    if not os.path.isdir(dirname + "/" + path_ext):
+        os.mkdir(dirname + "/" + path_ext)
+    print(dirname + "/" + path_ext)
     for x in data:
-        language = "en"
+        # language = "en"
         text = x[1]
         tts = gTTS(text=text, lang=language, slow=False)
-        tts.save("data/" + user_name + "/" + text + ".mp3")
+        tts.save(dirname + "/" + path_ext + "/" + text + ".mp3")
 def select_problem(path: str) -> list:
     data = np.loadtxt(path, dtype="str", delimiter="\t", encoding="utf-8")
     data = data.tolist()
