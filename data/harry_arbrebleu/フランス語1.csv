@@ -1,101 +1,101 @@
-0	briller	輝く
-0	enfin	最後に
-0	espèce	種類
-0	joue	頬
-0	milieu	中央
-0	mise	ある状態にある
-0	revenir	戻る
-0	se souvenir	思い出す
-0	trouver	見つける
-0	tout à coup 	突然
-0	empêcher	妨げる
-0	fameux	すばらしい
-0	pleurer	泣く
-0	pourtant	しかし
-0	doute	氷
-0	dépenser	金を使う
-0	déranger	邪魔をする
-0	lit	ベッド
-0	louer	賃貸しする
-0	pareil	同じような
-0	partout	いたるところに
-0	puis	次に
-0	tellment	とても
-0	tremblement	ふるえ
-0	carrefour	交差点
-0	chacun	それぞれ
-0	disparaître	見えなくなる
-0	drôle 	奇妙な
-0	facile à lire	読みやすい
-0	genou	ひざ
-0	goûter	味わう
-0	jambon	ハム
-0	perdre	失う
-0	prêt 	準備ができた
-0	raconter	物語る
-0	tromper	だます
-0	usine	工場
-0	vent 	風
-0	ventre	腹
-0	apporter	持ってくる
-0	barbe	ひげ
-0	bas	ストッキング
-0	bonheur	降伏
-0	casser	壊す
-0	corps	身体
-0	douceur	やわらかさ
-0	ensuite	次に
-0	maigre	やせた
-0	monnaie	小銭
-0	moyen	手段
-0	plaire	気に入る
-0	plein	いっぱいの
-0	pousser	押す
-0	rendre	返す
-0	sens	方向
-0	tenir	持っている
-0	tirer	引く
-0	tout de suite	すぐに
-0	valise	スーツケース
-0	vendre	売る
-0	vente	販売
-0	vide	空の
-0	coûter	値段が~である
-0	cuit	煮た，焼いた
-0	de cette manière	このように
-0	emmener	連れていく 
-0	fier	尊大な
-0	manquer	不足している
-0	maître	先生
-0	naturellement	もちろん
-0	ouvert	ひらいている 
-0	paraître	現れる
-0	presque	ほとんど
-0	sec	乾いた
-0	siècle	世紀
-0	tout d'abord	まずもって
-0	tête	頭
-0	amener	連れてくる
-0	douzaine	ダース
-0	encore	相変わらず
-0	faim 	空腹
-0	fer 	鉄
-0	frais	冷たい
-0	gorge	のど 
-0	inquiéter	心配させる
-0	nez	鼻
-0	pied	足 
-0	plutôt	むしろ
-0	rentrer	帰る
-0	tourner	向ける
-0	tout droit	そのまままっすぐ
-0	tranquille	静かな
-0	tuer	殺す
-0	hiver	冬
-0	joli	きれいな
-0	jouet	おもちゃ
-0	jusqu'à	まで
-0	laver	洗う
-0	se baigner	水浴びをする
-0	boulevard	大通り
-0	aller	行く
+0,aller,行く
+0,amener,連れてくる
+0,barbe,ひげ
+0,bas,ストッキング
+0,bonheur,降伏
+0,boulevard,大通り
+0,briller,輝く
+0,chacun,それぞれ
+0,corps,身体
+0,coûter,値段が~である
+0,cuit,煮た，焼いた
+0,de cette manière,このように
+0,disparaître,見えなくなる
+0,douceur,やわらかさ
+0,doute,氷
+0,douzaine,ダース
+0,drôle ,奇妙な
+0,dépenser,金を使う
+0,déranger,邪魔をする
+0,emmener,連れていく 
+0,empêcher,妨げる
+0,encore,相変わらず
+0,enfin,最後に
+0,ensuite,次に
+0,espèce,種類
+0,facile à lire,読みやすい
+0,faim ,空腹
+0,fameux,すばらしい
+0,fer ,鉄
+0,fier,尊大な
+0,frais,冷たい
+0,genou,ひざ
+0,gorge,のど 
+0,goûter,味わう
+0,hiver,冬
+0,inquiéter,心配させる
+0,jambon,ハム
+0,joli,きれいな
+0,joue,頬
+0,jouet,おもちゃ
+0,jusqu'à,まで
+0,laver,洗う
+0,lit,ベッド
+0,louer,賃貸しする
+0,maigre,やせた
+0,manquer,不足している
+0,maître,先生
+0,milieu,中央
+0,mise,ある状態にある
+0,monnaie,小銭
+0,moyen,手段
+0,naturellement,もちろん
+0,nez,鼻
+0,ouvert,ひらいている 
+0,paraître,現れる
+0,pareil,同じような
+0,partout,いたるところに
+0,perdre,失う
+0,pied,足 
+0,plaire,気に入る
+0,plein,いっぱいの
+0,pleurer,泣く
+0,plutôt,むしろ
+0,pourtant,しかし
+0,pousser,押す
+0,presque,ほとんど
+0,prêt ,準備ができた
+0,puis,次に
+0,raconter,物語る
+0,rendre,返す
+0,rentrer,帰る
+0,revenir,戻る
+0,se baigner,水浴びをする
+0,se souvenir,思い出す
+0,sec,乾いた
+0,sens,方向
+0,siècle,世紀
+0,tellment,とても
+0,tenir,持っている
+0,tirer,引く
+0,tourner,向ける
+0,tout d'abord,まずもって
+0,tout de suite,すぐに
+0,tout droit,そのまままっすぐ
+0,tout à coup ,突然
+0,tranquille,静かな
+0,tremblement,ふるえ
+0,tromper,だます
+0,trouver,見つける
+0,tuer,殺す
+0,tête,頭
+0,usine,工場
+0,valise,スーツケース
+0,vendre,売る
+0,vent ,風
+0,vente,販売
+0,ventre,腹
+0,vide,空の
+1,apporter,持ってくる
+1,carrefour,交差点
+1,casser,壊す

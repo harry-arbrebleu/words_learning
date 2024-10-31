@@ -1,27 +1,28 @@
 import numpy as np
-import time
 import os
 import random
 from gtts import gTTS
 
-def make_audio(path, user_name, language):
-    data = select_problem(path)
-    dirname, basename = os.path.split(path)
+def make_audio(csv_data_path, language):
+    data = select_problem(csv_data_path)
+    dirname, basename = os.path.split(csv_data_path)
     path_ext = os.path.splitext(basename)[0]
     if not os.path.isdir(dirname + "/" + path_ext):
         os.mkdir(dirname + "/" + path_ext)
     print(dirname + "/" + path_ext)
     for x in data:
-        # language = "en"
         text = x[1]
-        tts = gTTS(text=text, lang=language, slow=False)
-        tts.save(dirname + "/" + path_ext + "/" + text + ".mp3")
+        if (not os.path.isfile(dirname + "/" + path_ext + "/" + text + ".mp3")):
+            tts = gTTS(text=text, lang=language, slow=False)
+            tts.save(dirname + "/" + path_ext + "/" + text + ".mp3")
+
 def select_problem(path: str) -> list:
-    data = np.loadtxt(path, dtype="str", delimiter="\t", encoding="utf-8")
+    data = np.loadtxt(path, dtype="str", delimiter=",", encoding="utf-8")
     data = data.tolist()
     for i in range(len(data)):
         data[i][0] = int(data[i][0])
     return data
+
 def generate_problems(data: list, number_of_problems: int) -> list:
     l = list()
     print(data)
@@ -50,6 +51,7 @@ def generate_problems(data: list, number_of_problems: int) -> list:
                 use.append(cnd[ii])
     random.shuffle(use)
     return [use, already_learnt]
+
 def manage_problems(data: list, use: list, number_of_problems: int) -> list:
     correct = 0
     asked = 0
@@ -67,6 +69,7 @@ def manage_problems(data: list, use: list, number_of_problems: int) -> list:
         if bl: correct += 1
     print(f"{asked}問中{correct}問正解で正答率は{(correct * 100) / asked}%でした．")
     return data
+
 def submit_question(i: int, use: list) -> list:
     tmp = set()
     tmp.add(use[i][2])
@@ -85,12 +88,13 @@ def submit_question(i: int, use: list) -> list:
         if tmp[j] == use[i][2]:
             ans = j + 1
         stm += f"{cnt}: {tmp[j]}"
-        stm += "\t\t"
+        stm += ",,"
         if cnt % 3 == 0:
             stm += "\n"
         cnt += 1
     stm += f"9: {ask[9]}"
     return [stm, ans, ask]
+
 def receive_answer(data: list, ask: dict, i: int, use: list, ans_given: int, correct_ans: int, asked: int, correct: int) -> bool:
     if correct_ans == ans_given:
         print("正解！")
@@ -103,6 +107,7 @@ def receive_answer(data: list, ask: dict, i: int, use: list, ans_given: int, cor
         print(f"{use[i][1]}: {ask[correct_ans]}")
         data[use[i][3]][0] = 0
         return False
+
 def ending_test(path: str, data: list, already_learnt: int) -> bool:
     data.sort()
     shu = 0
@@ -114,20 +119,12 @@ def ending_test(path: str, data: list, already_learnt: int) -> bool:
                 shu += 1
             if data[i][0] == 1:
                 ich += 1
-            wr += str(data[i][0]) + "\t" + data[i][1] + "\t" + data[i][2] + "\n"
+            wr += str(data[i][0]) + "," + data[i][1] + "," + data[i][2] + "\n"
         f.write(wr)
     f.close()
     ret = f"全てで{len(data)}単語のうち，習得: {shu}単語, 点検中: {ich}単語です．\n新たに{shu - already_learnt}単語習得しました．\n習得率は{(shu * 100) / len(data)}%です．"
     return ret
-# def make_audio(path, data):
-#     path = path[: len(path) - 4]
-#     if not os.path.isdir(path):
-#         os.mkdir(path)
-#     for x in data:
-#         language = "en"
-#         text = x[1]
-#         tts = gTTS(text=text, lang=language, slow=False)
-#         tts.save("data/" + user_name + "/" + text + ".mp3")
+
 def main():
     # name_of_test = input("1-7の中でどれをやりたいですか？\n")
     name_of_test = "1"
